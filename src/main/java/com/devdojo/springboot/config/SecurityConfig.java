@@ -4,14 +4,18 @@
 package com.devdojo.springboot.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
 
 import com.devdojo.springboot.service.CustomUserDetailService;
+
+import static com.devdojo.springboot.config.SecurityConstants.*;
 
 /**
  * @author Anderson Indiano on 7 de fev. de 2021.
@@ -23,31 +27,28 @@ import com.devdojo.springboot.service.CustomUserDetailService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private CustomUserDetailService cuds;
+	private CustomUserDetailService customUserDetailsService;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
-		.antMatchers("/*/protected/**").hasAnyRole("USER","ADMIN")
-		.antMatchers("/*/admin/**").hasRole("ADMIN")
-		.and()
-		.httpBasic()
-		.and()
-		.csrf()
-		.disable();
-	}
+	
+    @Override
+    protected void configure (HttpSecurity http) throws Exception {
+
+        http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+                .and().csrf().disable()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+                .antMatchers("/*/protected/**").hasRole("USER")
+                .antMatchers("/*/admin/**").hasRole("ADMIN")
+                .and()
+                .addFilter(new JWTAuthenticationFilter(authenticationManager()))
+                .addFilter(new JWTAuthorizationFilter(authenticationManager(), customUserDetailsService));
+
+    }
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(cuds).passwordEncoder(new BCryptPasswordEncoder());
+		auth.userDetailsService(customUserDetailsService).passwordEncoder(new BCryptPasswordEncoder());
 	}
 
-//	@Autowired
-//	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//		auth.inMemoryAuthentication()
-//				.withUser("anderson").password(encoder.encode("123")).roles("USER").and()
-//				.withUser("admin").password(encoder.encode("123")).roles("USER", "ADMIN");
-//	}
 
 }

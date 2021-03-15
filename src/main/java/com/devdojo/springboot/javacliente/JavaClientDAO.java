@@ -18,15 +18,16 @@ import com.devdojo.springboot.model.Student;
 public class JavaClientDAO {
 	private RestTemplate restTemplate = new RestTemplateBuilder()
 			.rootUri("http://localhost:8080/v1/protected/students")
-			.basicAuthentication("alice fernanda", "123")
+			.basicAuthentication("maysa isabella", "devdojo")
 			.errorHandler(new RestReponseExceptionHandler())
 			.build();
 
 	private RestTemplate restTemplateAdmin = new RestTemplateBuilder()
 			.rootUri("http://localhost:8080/v1/admin/students")
-			.basicAuthentication("alice fernanda", "123")
+			.basicAuthentication("alice fernanda", "devdojo")
 			.errorHandler(new RestReponseExceptionHandler())
 			.build();
+		
 	
 	public Student findById(long id) {
 		return restTemplate.getForObject("/{id}", Student.class, id);

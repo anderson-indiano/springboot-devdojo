@@ -13,8 +13,8 @@ public class JavaClientTest {
 	public static void main(String[] args) {
 		HttpURLConnection connection = null;
 		BufferedReader reader = null;
-		String user = "alice fernanda";
-		String password = "123";
+		String user = "alice";
+		String password = "devdojo";
 		try {
 			URL url = new URL("http://localhost:8080/v1/protected/students/1");
 			connection = (HttpURLConnection) url.openConnection();

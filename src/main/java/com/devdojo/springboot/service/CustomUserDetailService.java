@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.devdojo.springboot.model.User;
+import com.devdojo.springboot.model.DBUser;
 import com.devdojo.springboot.repository.UserRepository;
 
 @Component
@@ -25,7 +25,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = Optional.ofNullable(userRepository.findByUsername(username))
+        DBUser user = Optional.ofNullable(userRepository.findByUsername(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         List<GrantedAuthority> authorityListAdmin = AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN");
         List<GrantedAuthority> authorityListUser = AuthorityUtils.createAuthorityList("ROLE_USER");

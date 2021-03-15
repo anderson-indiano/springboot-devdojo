@@ -9,8 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.devdojo.springboot.error.ResourceNotFoundException;
 import com.devdojo.springboot.model.Student;
 import com.devdojo.springboot.repository.StudentRepository;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Created by Anderson Indiano for DevDojo on 23/11/2020
@@ -43,110 +46,59 @@ public class StudentController {
 //	@RequestMapping(method = RequestMethod.GET)
 	@GetMapping(path = "protected/students")
 	public ResponseEntity<?> listAll(Pageable pageable) {
-//		System.out.println(dateUtil.formatLocalDateTime(LocalDateTime.now()));
+		System.out.println(studentDAO.findAll(pageable));
 		return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
 	}
-	
+
 //	@RequestMapping(method = RequestMethod.GET)
 	@GetMapping(path = "admin/students")
+	@ApiOperation(value = "Return a list with all students", response = Student[].class)
 	public ResponseEntity<?> listAllAdmin(Pageable pageable) {
-//		System.out.println(dateUtil.formatLocalDateTime(LocalDateTime.now()));
 		return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
 	}
-	
+
 //	@RequestMapping(method = RequestMethod.GET, path = "/{id}")
 	@GetMapping(path = "protected/students/{id}")
-	public ResponseEntity<?> getStudentById(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetails userDetails) {	
-		System.out.println(userDetails);
+	public ResponseEntity<?> getStudentById(@PathVariable("id") Long id, Authentication authentication) {
+		System.out.println(authentication);
 		verifiIfStudentExists(id);
 		Optional<Student> student = studentDAO.findById(id);
 		return new ResponseEntity<>(student, HttpStatus.OK);
 	}
-	
+
 	@GetMapping(path = "protected/students/findByName/{name}")
 	public ResponseEntity<?> findStudentByName(@PathVariable String name) {
 		return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
 	}
-	
+
 //	@RequestMapping(method = RequestMethod.POST)
 	@PostMapping(path = "admin/students")
 	@Transactional(rollbackFor = Exception.class)
-	public ResponseEntity<?> save(@Valid @RequestBody Student student) {		
+	public ResponseEntity<?> save(@Valid @RequestBody Student student) {
 		return new ResponseEntity<>(studentDAO.save(student), HttpStatus.CREATED);
 	}
-	
+
 //	@RequestMapping(method = RequestMethod.DELETE)
 	@DeleteMapping(path = "admin/students/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> delete(@PathVariable Long id) {	
+	public ResponseEntity<?> delete(@PathVariable Long id) {
 		verifiIfStudentExists(id);
 		studentDAO.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	
+
 //	@RequestMapping(method = RequestMethod.PUT)
 	@PutMapping(path = "admin/students")
-	public ResponseEntity<?> update(@RequestBody Student student) {		
+	public ResponseEntity<?> update(@RequestBody Student student) {
 		verifiIfStudentExists(student.getId());
 		studentDAO.save(student);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	
+
 	private void verifiIfStudentExists(Long id) {
 		Optional<Student> student = studentDAO.findById(id);
-		if (!student.isPresent()) {		
+		if (!student.isPresent()) {
 			throw new ResourceNotFoundException("Student not found for ID: " + id);
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

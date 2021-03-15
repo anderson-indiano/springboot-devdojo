@@ -5,22 +5,23 @@ import javax.persistence.Entity;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
-public class User extends AbstractEntity{
-	
+public class DBUser extends AbstractEntity{
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * 
-	 */
+
 	@NotEmpty
     @Column(unique = true)
     private String username;
+	
     @NotEmpty
     private String password;
+    
     @NotEmpty
     private String name;
+    
     @NotEmpty
     private boolean admin;
 
